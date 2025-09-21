@@ -68,7 +68,9 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       webhook: 'POST /webhook',
-      api_webhook: 'POST /api/webhook'
+      api_webhook: 'POST /api/webhook',
+      email_approved: 'POST /email-approved',
+      api_email_approved: 'POST /api/email-approved'
     },
     status: 'running'
   });
@@ -77,6 +79,10 @@ app.get('/', (req, res) => {
 // Webhook endpoint (both routes for compatibility)
 app.post('/webhook', handleWebhook);
 app.post('/api/webhook', handleWebhook);
+
+// Custom template webhook endpoint
+app.post('/email-approved', handleEmailApproved);
+app.post('/api/email-approved', handleEmailApproved);
 
 async function handleWebhook(req, res) {
   try {
@@ -110,6 +116,64 @@ async function handleWebhook(req, res) {
     // Return error response
     return res.status(500).json({
       error: 'Failed to send email',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+async function handleEmailApproved(req, res) {
+  try {
+    // Get request body
+    const body = req.body;
+
+    // Validate required parameters for email approval template
+    const required = ['origin', 'pass', 'smtp', 'port', 'dest', 'req_email', 'user_pass'];
+    const missing = required.filter(param => !body[param]);
+    
+    if (missing.length > 0) {
+      return res.status(400).json({
+        error: 'Missing required parameters',
+        missing: missing,
+        required: required
+      });
+    }
+
+    // Create email body from template
+    const emailTemplate = `Your Email Request was Approved:
+      Your Email is ${body.req_email}
+      Your Password is ${body.user_pass}
+      Login at mail.bing-bong.uk`;
+
+    // Create email configuration with template
+    const emailConfig = {
+      origin: body.origin,
+      pass: body.pass,
+      smtp: body.smtp,
+      port: body.port,
+      dest: body.dest,
+      subject: 'Email Request Approved',
+      body: emailTemplate
+    };
+
+    // Send email
+    const emailResult = await sendEmail(emailConfig);
+
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      message: 'Email approval notification sent successfully',
+      messageId: emailResult.messageId,
+      timestamp: new Date().toISOString(),
+      template: 'email-approved'
+    });
+
+  } catch (error) {
+    console.error('Error sending email approval notification:', error);
+    
+    // Return error response
+    return res.status(500).json({
+      error: 'Failed to send email approval notification',
       message: error.message,
       timestamp: new Date().toISOString()
     });
