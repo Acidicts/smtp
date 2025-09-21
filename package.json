@@ -5,10 +5,12 @@
   "type": "module",
   "main": "api/webhook.js",
   "scripts": {
-    "dev": "vercel dev",
+    "start": "node server.js",
+    "dev": "node server.js",
     "deploy": "vercel --prod"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "nodemailer": "^6.9.7"
   },
   "devDependencies": {
