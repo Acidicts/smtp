@@ -1,0 +1,28 @@
+{
+  "name": "vercel-webhook-smtp",
+  "version": "1.0.0",
+  "description": "A Vercel serverless app that receives webhooks and sends SMTP emails",
+  "main": "api/webhook.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.7"
+  },
+  "devDependencies": {
+    "vercel": "^32.4.1"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "keywords": [
+    "webhook",
+    "smtp",
+    "email",
+    "vercel",
+    "serverless"
+  ],
+  "author": "",
+  "license": "MIT"
+}
