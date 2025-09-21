@@ -34,7 +34,7 @@ function validateParameters(body) {
 
 // Helper function to send email
 async function sendEmail(emailConfig) {
-  const { origin, pass, smtp, port, dest, subject, body } = emailConfig;
+  const { origin, pass, smtp, port, dest, subject, body, html } = emailConfig;
   
   // Create transporter
   const transporter = nodemailer.createTransport({
@@ -53,7 +53,7 @@ async function sendEmail(emailConfig) {
     to: dest,
     subject: subject,
     text: body,
-    html: body // Support both text and HTML
+    html: html || body // Use HTML if provided, otherwise fallback to body
   };
 
   // Send email
@@ -140,10 +140,14 @@ async function handleEmailApproved(req, res) {
     }
 
     // Create email body from template
-    const emailTemplate = `Your Email Request was Approved:
-      Your Email is ${body.req_email}
-      Your Password is ${body.user_pass}
-      Login at mail.bing-bong.uk`;
+    const emailTemplate = `Your Email Request was Approved:\n\nYour Email is ${body.req_email}\nYour Password is ${body.user_pass}\n\nLogin at mail.bing-bong.uk`;
+    
+    const emailTemplateHTML = `
+      <h2>Your Email Request was Approved:</h2>
+      <p><strong>Your Email is:</strong> ${body.req_email}</p>
+      <p><strong>Your Password is:</strong> ${body.user_pass}</p>
+      <p><strong>Login at:</strong> <a href="https://mail.bing-bong.uk">mail.bing-bong.uk</a></p>
+    `;
 
     // Create email configuration with template
     const emailConfig = {
@@ -153,7 +157,8 @@ async function handleEmailApproved(req, res) {
       port: body.port,
       dest: body.dest,
       subject: 'Email Request Approved',
-      body: emailTemplate
+      body: emailTemplate,
+      html: emailTemplateHTML
     };
 
     // Send email
