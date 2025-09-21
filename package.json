@@ -2,6 +2,7 @@
   "name": "vercel-webhook-smtp",
   "version": "1.0.0",
   "description": "A Vercel serverless app that receives webhooks and sends SMTP emails",
+  "type": "module",
   "main": "api/webhook.js",
   "scripts": {
     "dev": "vercel dev",
